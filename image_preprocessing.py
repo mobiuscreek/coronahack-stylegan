@@ -141,8 +141,8 @@ def image_resize(filename, directory=None, size=(256,256)):
     if directory:
         if not os.path.exists(directory):
             os.makedirs(directory)
-        im_res.save(os.path.join(directory, filename))
-        print('test')
+        filename = filename.split('/')[-1]
+        im_res.save(f'{directory}/{filename}')
     return im_res
 
 
