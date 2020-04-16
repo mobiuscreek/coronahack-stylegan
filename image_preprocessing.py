@@ -5,9 +5,11 @@ import os
 import logging
 import numpy as np
 import tensorflow as tf
-import PIL.Image
 import glob
-import pathlib
+
+from PIL import Image
+
+
 
 class TFRecordExporter:
     def __init__(self, tfrecord_dir, expected_images,
@@ -99,7 +101,7 @@ def list_image_filenames(image_dir, filetypes):
     """Recurse through image_dir, return paths to jpg files"""
     for filetype in filetypes:
         filenames = glob.glob(os.path.join(image_dir, filetype))
-        return filenames
+    return filenames
 
 
 def tfrecords_from_images(tfrecord_dir, image_dir, shuffle):
