@@ -97,12 +97,14 @@ class TFRecordExporter:
         self.close()
 
 
-def list_image_filenames(image_dir, filetypes):
+def list_image_filenames(image_dir):
     """Recurse through image_dir, return paths to jpg files"""
-    for filetype in filetypes:
-        filenames = glob.glob(os.path.join(image_dir, filetype))
-    return filenames
-
+    matches = []
+    for root, dirnames, filenames in os.walk(image_dir):
+        for filename in filenames:
+            if filename.lower().endswith('jpg') or filename.lower().endswith('png'):
+                matches.append(os.path.join(root, filename))
+    return matches
 
 def tfrecords_from_images(tfrecord_dir, image_dir, shuffle):
     print('Loading images from "%s"' % image_dir)
@@ -110,7 +112,7 @@ def tfrecords_from_images(tfrecord_dir, image_dir, shuffle):
     if len(image_filenames) == 0:
         logging.error('No input images found')
 
-    img = np.asarray(PIL.Image.open(image_filenames[0]))
+    img = np.asarray(Image.open(image_filenames[0]))
     resolution = img.shape[0]
     channels = img.shape[2] if img.ndim == 3 else 1
     if img.shape[1] != resolution:
@@ -123,7 +125,7 @@ def tfrecords_from_images(tfrecord_dir, image_dir, shuffle):
     with TFRecordExporter(tfrecord_dir, len(image_filenames)) as tfr:
         order = tfr.choose_shuffled_order() if shuffle else np.arange(len(image_filenames))
         for idx in range(order.size):
-            img = np.asarray(PIL.Image.open(image_filenames[order[idx]]))
+            img = np.asarray(Image.open(image_filenames[order[idx]]))
             if channels == 1:
                 img = img[np.newaxis, :, :]  # HW => CHW
             else:
@@ -136,7 +138,7 @@ def image_resize(filename, directory=None, size=(256,256)):
     Stores results in a directory if specified.
     """
 
-    image = Image.open(filename).convert('LA')
+    image = Image.open(filename).convert('L')
     im_res = image.resize(size)
     if directory:
         if not os.path.exists(directory):
