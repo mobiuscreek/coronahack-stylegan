@@ -98,11 +98,11 @@ class TFRecordExporter:
 
 
 def list_image_filenames(image_dir):
-    """Recurse through image_dir, return paths to jpg files"""
+    """Recurse through image_dir, return paths to image files"""
     matches = []
     for root, dirnames, filenames in os.walk(image_dir):
         for filename in filenames:
-            if filename.lower().endswith('jpg') or filename.lower().endswith('png'):
+            if filename.lower().endswith('jpg') or filename.lower().endswith('png') or filename.lower().endswith('jpeg'):
                 matches.append(os.path.join(root, filename))
     return matches
 
