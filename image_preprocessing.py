@@ -125,11 +125,21 @@ def tfrecords_from_images(tfrecord_dir, image_dir, shuffle):
     with TFRecordExporter(tfrecord_dir, len(image_filenames)) as tfr:
         order = tfr.choose_shuffled_order() if shuffle else np.arange(len(image_filenames))
         for idx in range(order.size):
+            # Sanity check
+            print(img_filenames[idx])
             img = np.asarray(Image.open(image_filenames[order[idx]]))
+            channels = img.shape[2] if img.ndim == 3 else 1
             if channels == 1:
-                img = img[np.newaxis, :, :]  # HW => CHW
+                # Sanity check: print dimensions before and after
+                print(img.shape)
+                # Metrics bug too deep to fix --> invalid argument: input depth must be evenly divisible by filter depth: 1 vs 3
+                # Apply naive temp fix
+                img = np.stack((img,)*3, axis=0) # Fake the number of channels to 3
+                # img = img[np.newaxis, :, :]  # HW => CHW
+                print(img.shape)
             else:
                 img = img.transpose([2, 0, 1])  # HWC => CHW
+                print(img.shape)
             tfr.add_image(img)
 
 def image_resize(filename, directory=None, size=(256,256)):
